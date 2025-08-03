@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Caffeine缓存管理</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body { padding: 20px; }
+        .cache-card { margin-bottom: 20px; }
+        .switch { position: relative; display: inline-block; width: 60px; height: 34px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; }
+        .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; }
+        input:checked + .slider { background-color: #2196F3; }
+        input:focus + .slider { box-shadow: 0 0 1px #2196F3; }
+        input:checked + .slider:before { transform: translateX(26px); }
+        .slider.round { border-radius: 34px; }
+        .slider.round:before { border-radius: 50%; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4">Caffeine缓存管理</h1>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">注册新缓存</h2>
+            </div>
+            <div class="card-body">
+                <form action="/caffeine-admin/cache/register" method="post">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="cacheName" class="form-label">缓存名称</label>
+                            <input type="text" class="form-control" id="cacheName" name="cacheName" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="maximumSize" class="form-label">最大容量</label>
+                            <input type="number" class="form-control" id="maximumSize" name="maximumSize" value="10000">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="expireAfterWrite" class="form-label">过期时间(秒)</label>
+                            <input type="number" class="form-control" id="expireAfterWrite" name="expireAfterWrite" value="3600">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">注册</button>
+                </form>
+            </div>
+        </div>
+
+        <h2 class="h4 mb-3">已注册缓存</h2>
+        <div th:if="${cacheConfigs.isEmpty()}">
+            <div class="alert alert-info" role="alert">
+                暂无注册的缓存
+            </div>
+        </div>
+        <div th:unless="${cacheConfigs.isEmpty()}">
+            <div class="row">
+                <div th:each="entry : ${cacheConfigs}" class="col-md-6">
+                    <div class="card cache-card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h3 class="h6 mb-0" th:text="${entry.key}"></h3>
+                            <a href="/caffeine-admin/cache/detail/${entry.key}" class="btn btn-sm btn-secondary">详情</a>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>堆外缓存</span>
+                                    <label class="switch">
+                                        <input type="checkbox" th:checked="${entry.value.offHeapCacheEnabled}" disabled>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>持久化到磁盘</span>
+                                    <label class="switch">
+                                        <input type="checkbox" th:checked="${entry.value.persistenceEnabled}" disabled>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>异步预热</span>
+                                    <label class="switch">
+                                        <input type="checkbox" th:checked="${entry.value.asyncWarmupEnabled}" disabled>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <span class="font-weight-bold">最大容量:</span> <span th:text="${entry.value.maximumSize}"></span>
+                            </div>
+                            <div class="mb-3">
+                                <span class="font-weight-bold">过期时间:</span> <span th:text="${entry.value.expireAfterWrite}"></span> 秒
+                            </div>
+                            <button class="btn btn-sm btn-primary" onclick="refreshCache('${entry.key}')">刷新缓存</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function refreshCache(cacheName) {
+            fetch('/caffeine-admin/cache/refresh/' + cacheName, {
+                method: 'POST'
+            }).then(response => response.text())
+              .then(data => {
+                  alert(data);
+                  location.reload();
+              });
+        }
+    </script>
+</body>
+</html>

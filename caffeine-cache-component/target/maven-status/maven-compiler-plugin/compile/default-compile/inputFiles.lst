@@ -1,0 +1,9 @@
+/Users/kuangjizu/Desktop/work/秋招/Caffeine/caffeine-cache-component/src/main/java/com/caffeine/component/App.java
+/Users/kuangjizu/Desktop/work/秋招/Caffeine/caffeine-cache-component/src/main/java/com/caffeine/component/AsyncCacheWarmupManager.java
+/Users/kuangjizu/Desktop/work/秋招/Caffeine/caffeine-cache-component/src/main/java/com/caffeine/component/CacheConfig.java
+/Users/kuangjizu/Desktop/work/秋招/Caffeine/caffeine-cache-component/src/main/java/com/caffeine/component/CacheDataLoader.java
+/Users/kuangjizu/Desktop/work/秋招/Caffeine/caffeine-cache-component/src/main/java/com/caffeine/component/CachePersistenceManager.java
+/Users/kuangjizu/Desktop/work/秋招/Caffeine/caffeine-cache-component/src/main/java/com/caffeine/component/CacheWithWriter.java
+/Users/kuangjizu/Desktop/work/秋招/Caffeine/caffeine-cache-component/src/main/java/com/caffeine/component/CacheWriterAdapter.java
+/Users/kuangjizu/Desktop/work/秋招/Caffeine/caffeine-cache-component/src/main/java/com/caffeine/component/CaffeineCacheManager.java
+/Users/kuangjizu/Desktop/work/秋招/Caffeine/caffeine-cache-component/src/main/java/com/caffeine/component/OffHeapCacheManager.java

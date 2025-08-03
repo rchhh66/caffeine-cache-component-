@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>缓存详情 - [[${cacheName}]]</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body { padding: 20px; }
+        .switch { position: relative; display: inline-block; width: 60px; height: 34px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; }
+        .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; }
+        input:checked + .slider { background-color: #2196F3; }
+        input:focus + .slider { box-shadow: 0 0 1px #2196F3; }
+        input:checked + .slider:before { transform: translateX(26px); }
+        .slider.round { border-radius: 34px; }
+        .slider.round:before { border-radius: 50%; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4">缓存详情 - [[${cacheName}]]</h1>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">配置信息</h2>
+            </div>
+            <div class="card-body">
+                <form action="/caffeine-admin/cache/update/[[${cacheName}]]" method="post">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <label for="offHeapCacheEnabled" class="form-label">堆外缓存</label>
+                            <label class="switch">
+                                <input type="checkbox" id="offHeapCacheEnabled" name="offHeapCacheEnabled" th:checked="${config.offHeapCacheEnabled}">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <label for="persistenceEnabled" class="form-label">持久化到磁盘</label>
+                            <label class="switch">
+                                <input type="checkbox" id="persistenceEnabled" name="persistenceEnabled" th:checked="${config.persistenceEnabled}">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <label for="asyncWarmupEnabled" class="form-label">异步预热</label>
+                            <label class="switch">
+                                <input type="checkbox" id="asyncWarmupEnabled" name="asyncWarmupEnabled" th:checked="${config.asyncWarmupEnabled}">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="maximumSize" class="form-label">最大容量</label>
+                        <input type="number" class="form-control" id="maximumSize" name="maximumSize" th:value="${config.maximumSize}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="expireAfterWrite" class="form-label">过期时间(秒)</label>
+                        <input type="number" class="form-control" id="expireAfterWrite" name="expireAfterWrite" th:value="${config.expireAfterWrite}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="persistencePath" class="form-label">持久化路径</label>
+                        <input type="text" class="form-control" id="persistencePath" name="persistencePath" th:value="${config.persistencePath}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="persistenceInterval" class="form-label">持久化间隔(秒)</label>
+                        <input type="number" class="form-control" id="persistenceInterval" name="persistenceInterval" th:value="${config.persistenceInterval}" readonly>
+                    </div>
+                    <button type="submit" class="btn btn-primary">更新配置</button>
+                    <a href="/caffeine-admin/cache/manage" class="btn btn-secondary ms-2">返回</a>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
