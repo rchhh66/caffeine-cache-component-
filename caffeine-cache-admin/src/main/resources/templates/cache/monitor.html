@@ -1,0 +1,196 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>缓存监控大盘</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <style>
+        body { padding: 20px; }
+        .stat-card { margin-bottom: 20px; }
+        .stat-value { font-size: 1.5rem; font-weight: bold; }
+        .stat-label { font-size: 0.8rem; color: #6c757d; }
+        .chart-container { height: 300px; margin-bottom: 30px; }
+    </style>
+</head>
+<body>
+    <th:block th:replace="fragments/navbar :: navbar"></th:block>
+    <div class="container">
+        <h1 class="mb-4">缓存监控大盘</h1>
+
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card stat-card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="stat-label">总缓存数</div>
+                        <div class="stat-value" th:text="${cacheMetrics.size()}">0</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card bg-success text-white">
+                    <div class="card-body">
+                        <div class="stat-label">总访问次数</div>
+                        <div class="stat-value" id="totalAccessCount">0</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card bg-warning text-white">
+                    <div class="card-body">
+                        <div class="stat-label">总命中次数</div>
+                        <div class="stat-value" id="totalHitCount">0</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card bg-danger text-white">
+                    <div class="card-body">
+                        <div class="stat-label">平均命中率</div>
+                        <div class="stat-value" id="averageHitRate">0%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="hitRateChart"></canvas>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="cacheSizeChart"></canvas>
+        </div>
+
+        <h2 class="h4 mb-3">缓存详情</h2>
+        <div th:if="${cacheMetrics.isEmpty()}">
+            <div class="alert alert-info" role="alert">
+                暂无缓存数据
+            </div>
+        </div>
+        <div th:unless="${cacheMetrics.isEmpty()}">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>缓存名称</th>
+                        <th>缓存大小</th>
+                        <th>访问次数</th>
+                        <th>命中次数</th>
+                        <th>命中率</th>
+                        <th>平均访问时间(ms)</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="entry : ${cacheMetrics}">
+                        <td th:text="${entry.key}"></td>
+                        <td th:text="${entry.value.cacheSize}"></td>
+                        <td th:text="${entry.value.accessCount}"></td>
+                        <td th:text="${entry.value.hitCount}"></td>
+                        <td>
+                            <span class="badge" th:classappend="${entry.value.hitRate ge 0.8 ? 'bg-success' : (entry.value.hitRate ge 0.5 ? 'bg-warning' : 'bg-danger')}" th:text="${#numbers.formatDecimal(entry.value.hitRate * 100, 1, 2)}%">0%</span>
+                        </td>
+                        <td th:text="${entry.value.averageAccessTime}"></td>
+                        <td>
+                            <a th:href="@{/cache/monitor/{cacheName}(cacheName=${entry.key})}" class="btn btn-sm btn-secondary">详情</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 准备数据
+        const cacheMetrics = /*[[${cacheMetrics}]]*/ {};
+
+        // 计算总计
+        let totalAccessCount = 0;
+        let totalHitCount = 0;
+        let cacheNames = [];
+        let hitRates = [];
+        let cacheSizes = [];
+
+        for (const [name, metrics] of Object.entries(cacheMetrics)) {
+            totalAccessCount += metrics.accessCount;
+            totalHitCount += metrics.hitCount;
+            cacheNames.push(name);
+            hitRates.push(metrics.hitRate * 100);
+            cacheSizes.push(metrics.cacheSize);
+        }
+
+        // 更新总计
+        document.getElementById('totalAccessCount').textContent = totalAccessCount;
+        document.getElementById('totalHitCount').textContent = totalHitCount;
+        const averageHitRate = totalAccessCount > 0 ? (totalHitCount / totalAccessCount) * 100 : 0;
+        document.getElementById('averageHitRate').textContent = averageHitRate.toFixed(2) + '%';
+
+        // 初始化命中率图表
+        const hitRateCtx = document.getElementById('hitRateChart').getContext('2d');
+        new Chart(hitRateCtx, {
+            type: 'bar',
+            data: {
+                labels: cacheNames,
+                datasets: [{
+                    label: '命中率 (%)',
+                    data: hitRates,
+                    backgroundColor: hitRates.map(rate => rate >= 80 ? 'rgba(25, 135, 84, 0.7)' : rate >= 50 ? 'rgba(255, 193, 7, 0.7)' : 'rgba(220, 53, 69, 0.7)'),
+                    borderColor: hitRates.map(rate => rate >= 80 ? 'rgb(25, 135, 84)' : rate >= 50 ? 'rgb(255, 193, 7)' : 'rgb(220, 53, 69)'),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '缓存命中率对比'
+                    }
+                }
+            }
+        });
+
+        // 初始化缓存大小图表
+        const cacheSizeCtx = document.getElementById('cacheSizeChart').getContext('2d');
+        new Chart(cacheSizeCtx, {
+            type: 'bar',
+            data: {
+                labels: cacheNames,
+                datasets: [{
+                    label: '缓存大小',
+                    data: cacheSizes,
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgb(54, 162, 235)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '缓存大小对比'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

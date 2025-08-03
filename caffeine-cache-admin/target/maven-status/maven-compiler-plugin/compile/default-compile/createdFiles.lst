@@ -1,0 +1,8 @@
+com/caffeine/admin/CaffeineCacheAdminApplication.class
+com/caffeine/admin/service/CaffeineCacheManager.class
+com/caffeine/admin/service/CacheMonitorService.class
+com/caffeine/admin/controller/HomeController.class
+com/caffeine/admin/service/CacheContentService.class
+com/caffeine/admin/controller/CacheManagementController.class
+com/caffeine/admin/service/CacheConfigService.class
+com/caffeine/admin/model/CacheConfig.class

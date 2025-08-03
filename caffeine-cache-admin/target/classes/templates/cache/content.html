@@ -1,0 +1,116 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>缓存内容 - [[${cacheName}]]</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body { padding: 20px; }
+        .cache-key { cursor: pointer; }
+        .modal-body { word-break: break-all; }
+    </style>
+</head>
+<body>
+    <th:block th:replace="fragments/navbar :: navbar"></th:block>
+    <div class="container">
+        <h1 class="mb-4">缓存内容 - [[${cacheName}]]</h1>
+
+        <div th:if="${param.message}" class="alert alert-success" role="alert" th:text="${param.message}"></div>
+        <div th:if="${param.error}" class="alert alert-danger" role="alert" th:text="${param.error}"></div>
+
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="h5 mb-0">缓存操作</h2>
+                <form action="/caffeine-admin/cache/content/[[${cacheName}]]/clear" method="post">
+                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要清空缓存吗？');">清空缓存</button>
+                </form>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="keySearch" class="form-label">搜索key</label>
+                    <input type="text" class="form-control" id="keySearch" placeholder="输入key关键词搜索">
+                </div>
+            </div>
+        </div>
+
+        <h2 class="h4 mb-3">缓存key列表</h2>
+        <div th:if="${cacheKeys.isEmpty()}">
+            <div class="alert alert-info" role="alert">
+                缓存为空
+            </div>
+        </div>
+        <div th:unless="${cacheKeys.isEmpty()}">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>key</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="key : ${cacheKeys}">
+                        <td class="cache-key" th:text="${key}" th:data-key="${key}"></td>
+                        <td>
+                            <form th:action="@{/cache/content/{cacheName}/remove/{key}(cacheName=${cacheName}, key=${key})}" method="post">
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('确定要删除这个key吗？');">删除</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 查看value模态框 -->
+    <div class="modal fade" id="valueModal" tabindex="-1" aria-labelledby="valueModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="valueModalLabel">key值详情</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <pre id="valueContent"></pre>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 查看key值
+        document.querySelectorAll('.cache-key').forEach(keyElement => {
+            keyElement.addEventListener('click', function() {
+                const cacheName = '[[${cacheName}]]';
+                const key = this.getAttribute('data-key');
+                fetch('/caffeine-admin/cache/content/' + cacheName + '/key/' + encodeURIComponent(key))
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('valueContent').textContent = JSON.stringify(data, null, 2);
+                        const valueModal = new bootstrap.Modal(document.getElementById('valueModal'));
+                        valueModal.show();
+                    })
+                    .catch(error => {
+                        console.error('获取key值失败:', error);
+                        alert('获取key值失败');
+                    });
+            });
+        });
+
+        // 搜索功能
+        document.getElementById('keySearch').addEventListener('input', function() {
+            const searchText = this.value.toLowerCase();
+            document.querySelectorAll('.cache-key').forEach(row => {
+                const keyText = row.textContent.toLowerCase();
+                if (keyText.includes(searchText)) {
+                    row.parentElement.style.display = '';
+                } else {
+                    row.parentElement.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
