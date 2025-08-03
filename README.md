@@ -74,6 +74,8 @@ cacheManager.setConfig(customConfig);
 
 ### 异步缓存预热
 
+#### 使用AsyncCacheWarmupManager
+
 ```java
 // 创建异步预热管理器
 AsyncCacheWarmupManager warmupManager = new AsyncCacheWarmupManager(config);
@@ -90,6 +92,32 @@ warmupManager.setDataLoader(new CacheDataLoader() {
 // 异步预热缓存
 warmupManager.warmupCacheAsync("myCache", cache);
 ```
+
+#### 使用RedisCacheLoader
+
+我们提供了从Redis加载数据到本地缓存的实现，可以通过以下方式使用：
+
+```java
+// 初始化Redis缓存加载器
+String redisHost = "localhost";
+int redisPort = 6379;
+String redisPrefix = "app:";
+
+// 配置Jedis连接池
+JedisPoolConfig poolConfig = new JedisPoolConfig();
+poolConfig.setMaxTotal(10);
+poolConfig.setMaxIdle(5);
+poolConfig.setMinIdle(1);
+
+RedisCacheLoader redisCacheLoader = new RedisCacheLoader(redisHost, redisPort, redisPrefix, poolConfig);
+
+// 从Redis异步加载数据到本地缓存
+redisCacheLoader.loadData(cacheName, cache);
+```
+
+完整的示例代码请查看测试目录下的：
+`com.caffeine.component.example.RedisCacheLoaderExample`
+位于`src/test/java`目录中。
 
 ### 持久化操作
 

@@ -48,6 +48,13 @@
       <version>1.2.11</version>
     </dependency>
 
+    <!-- Redis客户端依赖 -->
+    <dependency>
+      <groupId>redis.clients</groupId>
+      <artifactId>jedis</artifactId>
+      <version>4.3.1</version>
+    </dependency>
+
     <!-- 测试依赖 -->
     <dependency>
       <groupId>junit</groupId>
