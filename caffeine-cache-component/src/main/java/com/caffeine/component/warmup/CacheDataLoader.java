@@ -1,4 +1,4 @@
-package com.caffeine.component;
+package com.caffeine.component.warmup;
 
 import com.github.benmanes.caffeine.cache.Cache;
 

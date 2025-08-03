@@ -1,4 +1,4 @@
-package com.caffeine.component;
+package com.caffeine.component.config;
 
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;

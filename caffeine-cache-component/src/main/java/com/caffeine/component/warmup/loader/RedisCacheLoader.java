@@ -1,4 +1,6 @@
-package com.caffeine.component.loader;
+package com.caffeine.component.warmup.loader;
+
+import com.caffeine.component.warmup.loader.AbstractExternalCacheLoader;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import redis.clients.jedis.Jedis;

@@ -1,6 +1,6 @@
-package com.caffeine.component.loader;
+package com.caffeine.component.warmup.loader;
 
-import com.caffeine.component.CacheDataLoader;
+import com.caffeine.component.warmup.CacheDataLoader;
 import com.github.benmanes.caffeine.cache.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,5 +1,6 @@
-package com.caffeine.component;
+package com.caffeine.component.persistence;
 
+import com.caffeine.component.persistence.CachePersistenceManager;
 import com.github.benmanes.caffeine.cache.RemovalListener;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import org.slf4j.Logger;

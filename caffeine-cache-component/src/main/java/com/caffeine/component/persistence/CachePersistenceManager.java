@@ -1,5 +1,6 @@
-package com.caffeine.component;
+package com.caffeine.component.persistence;
 
+import com.caffeine.component.config.CacheConfig;
 import com.github.benmanes.caffeine.cache.Cache;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;

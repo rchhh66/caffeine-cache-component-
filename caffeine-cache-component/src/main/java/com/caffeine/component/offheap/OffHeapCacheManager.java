@@ -1,5 +1,6 @@
-package com.caffeine.component;
+package com.caffeine.component.offheap;
 
+import com.caffeine.component.config.CacheConfig;
 import com.github.benmanes.caffeine.cache.Cache;
 import org.ehcache.CacheManager;
 import org.ehcache.config.CacheConfiguration;

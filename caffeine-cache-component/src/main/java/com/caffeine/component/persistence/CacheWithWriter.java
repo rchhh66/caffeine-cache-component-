@@ -1,4 +1,4 @@
-package com.caffeine.component;
+package com.caffeine.component.persistence;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Policy;

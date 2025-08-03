@@ -1,5 +1,10 @@
-package com.caffeine.component;
+package com.caffeine.component.core;
 
+import com.caffeine.component.config.CacheConfig;
+import com.caffeine.component.offheap.OffHeapCacheManager;
+import com.caffeine.component.persistence.CachePersistenceManager;
+import com.caffeine.component.persistence.CacheWriterAdapter;
+import com.caffeine.component.persistence.CacheWithWriter;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import java.util.Map;
