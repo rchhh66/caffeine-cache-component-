@@ -1,0 +1,38 @@
+-- 创建数据库
+CREATE DATABASE IF NOT EXISTS caffeine_cache;
+USE caffeine_cache;
+
+-- 缓存配置表
+CREATE TABLE IF NOT EXISTS cache_config (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    cache_name VARCHAR(100) NOT NULL UNIQUE,
+    initial_capacity INT NOT NULL DEFAULT 100,
+    maximum_size INT NOT NULL DEFAULT 10000,
+    expire_time BIGINT NOT NULL DEFAULT 3600,
+    expire_policy VARCHAR(50) NOT NULL DEFAULT 'expireAfterWrite',
+    key_strategy VARCHAR(50) NOT NULL DEFAULT 'default',
+    off_heap BOOLEAN NOT NULL DEFAULT FALSE,
+    persistent BOOLEAN NOT NULL DEFAULT FALSE,
+    async_warmup BOOLEAN NOT NULL DEFAULT FALSE,
+    persistent_path VARCHAR(255) DEFAULT NULL,
+    persistent_interval INT NOT NULL DEFAULT 60,
+    created_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 缓存监控表
+CREATE TABLE IF NOT EXISTS cache_monitor (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    cache_name VARCHAR(100) NOT NULL,
+    access_count BIGINT NOT NULL DEFAULT 0,
+    hit_count BIGINT NOT NULL DEFAULT 0,
+    miss_count BIGINT NOT NULL DEFAULT 0,
+    expire_count BIGINT NOT NULL DEFAULT 0,
+    eviction_count BIGINT NOT NULL DEFAULT 0,
+    cache_size INT NOT NULL DEFAULT 0,
+    average_access_time DOUBLE NOT NULL DEFAULT 0,
+    last_access_time TIMESTAMP NULL DEFAULT NULL,
+    created_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (cache_name) REFERENCES cache_config(cache_name) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

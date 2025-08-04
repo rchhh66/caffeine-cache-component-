@@ -1,7 +1,12 @@
 /Users/kuangjizu/Desktop/work/秋招/Caffeine/caffeine-cache-admin/src/main/java/com/caffeine/admin/CaffeineCacheAdminApplication.java
+/Users/kuangjizu/Desktop/work/秋招/Caffeine/caffeine-cache-admin/src/main/java/com/caffeine/admin/config/DatabaseInitializer.java
 /Users/kuangjizu/Desktop/work/秋招/Caffeine/caffeine-cache-admin/src/main/java/com/caffeine/admin/controller/CacheManagementController.java
 /Users/kuangjizu/Desktop/work/秋招/Caffeine/caffeine-cache-admin/src/main/java/com/caffeine/admin/controller/HomeController.java
+/Users/kuangjizu/Desktop/work/秋招/Caffeine/caffeine-cache-admin/src/main/java/com/caffeine/admin/controller/TestController.java
 /Users/kuangjizu/Desktop/work/秋招/Caffeine/caffeine-cache-admin/src/main/java/com/caffeine/admin/model/CacheConfig.java
+/Users/kuangjizu/Desktop/work/秋招/Caffeine/caffeine-cache-admin/src/main/java/com/caffeine/admin/model/CacheMonitor.java
+/Users/kuangjizu/Desktop/work/秋招/Caffeine/caffeine-cache-admin/src/main/java/com/caffeine/admin/repository/CacheConfigRepository.java
+/Users/kuangjizu/Desktop/work/秋招/Caffeine/caffeine-cache-admin/src/main/java/com/caffeine/admin/repository/CacheMonitorRepository.java
 /Users/kuangjizu/Desktop/work/秋招/Caffeine/caffeine-cache-admin/src/main/java/com/caffeine/admin/service/CacheConfigService.java
 /Users/kuangjizu/Desktop/work/秋招/Caffeine/caffeine-cache-admin/src/main/java/com/caffeine/admin/service/CacheContentService.java
 /Users/kuangjizu/Desktop/work/秋招/Caffeine/caffeine-cache-admin/src/main/java/com/caffeine/admin/service/CacheMonitorService.java

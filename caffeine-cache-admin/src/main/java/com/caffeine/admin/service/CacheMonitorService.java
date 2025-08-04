@@ -1,10 +1,15 @@
 package com.caffeine.admin.service;
 
-import com.caffeine.admin.service.CaffeineCacheManager;
+import com.caffeine.admin.model.CacheMonitor;
+import com.caffeine.admin.repository.CacheMonitorRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -13,77 +18,136 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 @Service
 public class CacheMonitorService {
-    // 缓存访问次数
-    private final Map<String, AtomicLong> accessCount = new ConcurrentHashMap<>();
-    // 缓存命中次数
-    private final Map<String, AtomicLong> hitCount = new ConcurrentHashMap<>();
-    // 缓存未命中次数
-    private final Map<String, AtomicLong> missCount = new ConcurrentHashMap<>();
-    // 缓存大小
-    private final Map<String, Integer> cacheSize = new ConcurrentHashMap<>();
-    // 缓存过期次数
-    private final Map<String, AtomicLong> expireCount = new ConcurrentHashMap<>();
-    // 缓存移除次数
-    private final Map<String, AtomicLong> evictionCount = new ConcurrentHashMap<>();
-    // 缓存平均访问时间(毫秒)
-    private final Map<String, AtomicLong> averageAccessTime = new ConcurrentHashMap<>();
+    @Autowired
+    private CacheMonitorRepository cacheMonitorRepository;
+
+    // 内存缓存，用于提高性能
+    private final Map<String, CacheMonitor> monitorCache = new ConcurrentHashMap<>();
+
+    /**
+     * 初始化：从数据库加载监控数据
+     */
+    @PostConstruct
+    public void init() {
+        cacheMonitorRepository.findAll().forEach(monitor -> {
+            monitorCache.put(monitor.getCacheName(), monitor);
+        });
+    }
 
     /**
      * 记录缓存访问
      */
     public void recordAccess(String cacheName, boolean hit, long accessTime) {
-        accessCount.computeIfAbsent(cacheName, k -> new AtomicLong(0)).incrementAndGet();
+        CacheMonitor monitor = getOrCreateMonitor(cacheName);
+
+        // 更新访问计数
+        monitor.setAccessCount(monitor.getAccessCount() + 1);
+
+        // 更新命中/未命中计数
         if (hit) {
-            hitCount.computeIfAbsent(cacheName, k -> new AtomicLong(0)).incrementAndGet();
+            monitor.setHitCount(monitor.getHitCount() + 1);
         } else {
-            missCount.computeIfAbsent(cacheName, k -> new AtomicLong(0)).incrementAndGet();
+            monitor.setMissCount(monitor.getMissCount() + 1);
         }
 
         // 更新平均访问时间
-        AtomicLong currentAvg = averageAccessTime.computeIfAbsent(cacheName, k -> new AtomicLong(0));
-        long currentValue = currentAvg.get();
-        long newAvg = (currentValue * (accessCount.get(cacheName).get() - 1) + accessTime) / accessCount.get(cacheName).get();
-        currentAvg.set(newAvg);
+        long newAvg = (long)((monitor.getAverageAccessTime() * (monitor.getAccessCount() - 1) + accessTime) / monitor.getAccessCount());
+        monitor.setAverageAccessTime(newAvg);
+
+        // 更新最后访问时间
+        monitor.setLastAccessTime(LocalDateTime.now());
+
+        // 保存到数据库
+        cacheMonitorRepository.save(monitor);
+
+        // 更新内存缓存
+        monitorCache.put(cacheName, monitor);
     }
 
     /**
      * 记录缓存过期
      */
     public void recordExpire(String cacheName) {
-        expireCount.computeIfAbsent(cacheName, k -> new AtomicLong(0)).incrementAndGet();
+        CacheMonitor monitor = getOrCreateMonitor(cacheName);
+        monitor.setExpireCount(monitor.getExpireCount() + 1);
+        cacheMonitorRepository.save(monitor);
+        monitorCache.put(cacheName, monitor);
     }
 
     /**
      * 记录缓存移除
      */
     public void recordEviction(String cacheName) {
-        evictionCount.computeIfAbsent(cacheName, k -> new AtomicLong(0)).incrementAndGet();
+        CacheMonitor monitor = getOrCreateMonitor(cacheName);
+        monitor.setEvictionCount(monitor.getEvictionCount() + 1);
+        cacheMonitorRepository.save(monitor);
+        monitorCache.put(cacheName, monitor);
     }
 
     /**
      * 更新缓存大小
      */
     public void updateCacheSize(String cacheName, int size) {
-        cacheSize.put(cacheName, size);
+        CacheMonitor monitor = getOrCreateMonitor(cacheName);
+        monitor.setCacheSize(size);
+        cacheMonitorRepository.save(monitor);
+        monitorCache.put(cacheName, monitor);
+    }
+
+    /**
+     * 获取或创建缓存监控对象
+     */
+    private CacheMonitor getOrCreateMonitor(String cacheName) {
+        // 先检查内存缓存
+        CacheMonitor monitor = monitorCache.get(cacheName);
+        if (monitor != null) {
+            return monitor;
+        }
+
+        // 从数据库查找
+        Optional<CacheMonitor> optionalMonitor = cacheMonitorRepository.findByCacheName(cacheName);
+        if (optionalMonitor.isPresent()) {
+            monitor = optionalMonitor.get();
+            monitorCache.put(cacheName, monitor);
+            return monitor;
+        }
+
+        // 创建新的监控对象
+        monitor = new CacheMonitor();
+        monitor.setCacheName(cacheName);
+        monitor.setAccessCount(0);
+        monitor.setHitCount(0);
+        monitor.setMissCount(0);
+        monitor.setExpireCount(0);
+        monitor.setEvictionCount(0);
+        monitor.setCacheSize(0);
+        monitor.setAverageAccessTime(0);
+        monitor.setLastAccessTime(LocalDateTime.now());
+
+        // 保存到数据库
+        cacheMonitorRepository.save(monitor);
+        monitorCache.put(cacheName, monitor);
+        return monitor;
     }
 
     /**
      * 获取缓存性能指标
      */
     public Map<String, Object> getCacheMetrics(String cacheName) {
+        CacheMonitor monitor = getOrCreateMonitor(cacheName);
         Map<String, Object> metrics = new HashMap<>();
-        metrics.put("accessCount", accessCount.getOrDefault(cacheName, new AtomicLong(0)).get());
-        metrics.put("hitCount", hitCount.getOrDefault(cacheName, new AtomicLong(0)).get());
-        metrics.put("missCount", missCount.getOrDefault(cacheName, new AtomicLong(0)).get());
-        metrics.put("cacheSize", cacheSize.getOrDefault(cacheName, 0));
-        metrics.put("expireCount", expireCount.getOrDefault(cacheName, new AtomicLong(0)).get());
-        metrics.put("evictionCount", evictionCount.getOrDefault(cacheName, new AtomicLong(0)).get());
-        metrics.put("averageAccessTime", averageAccessTime.getOrDefault(cacheName, new AtomicLong(0)).get());
+        metrics.put("accessCount", monitor.getAccessCount());
+        metrics.put("hitCount", monitor.getHitCount());
+        metrics.put("missCount", monitor.getMissCount());
+        metrics.put("cacheSize", monitor.getCacheSize());
+        metrics.put("expireCount", monitor.getExpireCount());
+        metrics.put("evictionCount", monitor.getEvictionCount());
+        metrics.put("averageAccessTime", monitor.getAverageAccessTime());
+        metrics.put("lastAccessTime", monitor.getLastAccessTime());
 
         // 计算命中率
-        long access = accessCount.getOrDefault(cacheName, new AtomicLong(0)).get();
-        long hit = hitCount.getOrDefault(cacheName, new AtomicLong(0)).get();
-        metrics.put("hitRate", access > 0 ? (double) hit / access : 0);
+        double hitRate = monitor.getAccessCount() > 0 ? (double) monitor.getHitCount() / monitor.getAccessCount() : 0;
+        metrics.put("hitRate", hitRate);
 
         return metrics;
     }
@@ -93,8 +157,8 @@ public class CacheMonitorService {
      */
     public Map<String, Map<String, Object>> getAllCacheMetrics() {
         Map<String, Map<String, Object>> allMetrics = new HashMap<>();
-        accessCount.keySet().forEach(cacheName -> {
-            allMetrics.put(cacheName, getCacheMetrics(cacheName));
+        cacheMonitorRepository.findAll().forEach(monitor -> {
+            allMetrics.put(monitor.getCacheName(), getCacheMetrics(monitor.getCacheName()));
         });
         return allMetrics;
     }

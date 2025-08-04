@@ -51,6 +51,20 @@
       <version>4.13.2</version>
       <scope>test</scope>
     </dependency>
+
+    <!-- MySQL驱动 -->
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>8.0.33</version>
+    </dependency>
+
+    <!-- Spring Data JPA -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-jpa</artifactId>
+      <version>2.7.15</version>
+    </dependency>
   </dependencies>
 
   <build>

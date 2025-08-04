@@ -1,0 +1,4 @@
+SHOW DATABASES;
+CREATE DATABASE IF NOT EXISTS caffeine_cache;
+GRANT ALL PRIVILEGES ON caffeine_cache.* TO 'root'@'localhost' IDENTIFIED BY 'root';
+FLUSH PRIVILEGES;
