@@ -1,6 +1,7 @@
 package com.caffeine.component.core;
 
 import com.caffeine.component.config.CacheConfig;
+import com.caffeine.component.listener.CacheConfigChangeListener;
 import com.caffeine.component.offheap.OffHeapCacheManager;
 import com.caffeine.component.persistence.CachePersistenceManager;
 import com.caffeine.component.persistence.CacheWriterAdapter;
@@ -14,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Caffeine缓存管理器
  */
-public class CaffeineCacheManager {
+public class CaffeineCacheManager implements CacheConfigChangeListener {
     // 缓存实例容器
     private final Map<String, Cache<Object, Object>> cacheContainer = new ConcurrentHashMap<>();
     // 配置
@@ -120,13 +121,31 @@ public class CaffeineCacheManager {
         // 更新配置
         this.config.update(config);
         
-        // 检查其他关键配置是否变更
+        // 检查关键配置是否变更
         if (config.getMaximumSize() != oldConfig.getMaximumSize() ||
             config.getExpireAfterWrite() != oldConfig.getExpireAfterWrite() ||
-            config.isAutoPersistenceEnabled() != oldConfig.isAutoPersistenceEnabled()) {
+            config.isAutoPersistenceEnabled() != oldConfig.isAutoPersistenceEnabled() ||
+            config.isOffHeapCacheEnabled() != oldConfig.isOffHeapCacheEnabled() ||
+            config.isPersistenceEnabled() != oldConfig.isPersistenceEnabled()) {
             
             // 重建所有缓存以应用新配置
             rebuildAllCaches();
+        }
+    }
+
+    /**
+     * 处理配置变更事件
+     * @param newConfig 新配置
+     */
+    public void onConfigChanged(CacheConfig newConfig) {
+        setConfig(newConfig);
+        System.out.println("缓存配置已更新并应用: " + newConfig.getCacheName());
+    }
+
+    @Override
+    public void onCacheConfigChanged(CacheConfig config) {
+        if (config != null && config.getCacheName().equals(this.config.getCacheName())) {
+            onConfigChanged(config);
         }
     }
     
@@ -151,10 +170,18 @@ public class CaffeineCacheManager {
     }
 
     /**
+     * 初始化缓存
+     */
+    private void initCaches() {
+        // 初始化默认缓存
+        getCache(config.getCacheName());
+    }
+
+    /**
      * 获取缓存配置
-     * @return 缓存配置
+     * @return 缓存配置对象
      */
     public CacheConfig getConfig() {
-        return config;
+        return this.config;
     }
 }

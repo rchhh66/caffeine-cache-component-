@@ -29,6 +29,13 @@
       <version>2.7.15</version>
     </dependency>
 
+    <!-- Spring Boot WebSocket依赖 -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-websocket</artifactId>
+      <version>2.7.15</version>
+    </dependency>
+
     <!-- 缓存组件依赖 -->
     <dependency>
       <groupId>com.caffeine.component</groupId>

@@ -98,7 +98,6 @@ public class OffHeapCacheManager {
                     ResourcePoolsBuilder.newResourcePoolsBuilder()
                             .offheap(config.getMaximumSize() * 1024, MemoryUnit.KB)) // 假设每个条目平均1KB
                     .build();
-
             // 创建堆外缓存
             return cacheManager.createCache(name, cacheConfig);
         });

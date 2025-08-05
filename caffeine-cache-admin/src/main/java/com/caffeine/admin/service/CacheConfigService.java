@@ -1,10 +1,11 @@
 package com.caffeine.admin.service;
 
+import com.caffeine.admin.handler.CacheConfigWebSocketHandler;
 import com.caffeine.admin.model.CacheConfig;
 import com.caffeine.admin.repository.CacheConfigRepository;
+import com.caffeine.component.listener.CacheConfigChangeNotifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,10 +21,13 @@ public class CacheConfigService {
     private final Map<String, CacheConfig> cacheConfigs = new ConcurrentHashMap<>();
     // 缓存配置Repository
     private final CacheConfigRepository cacheConfigRepository;
+    // 配置变更通知器
+    private final CacheConfigChangeNotifier configChangeNotifier;
     // 构造函数注入
     @Autowired
-    public CacheConfigService(CacheConfigRepository cacheConfigRepository) {
+    public CacheConfigService(CacheConfigRepository cacheConfigRepository, CacheConfigChangeNotifier configChangeNotifier) {
         this.cacheConfigRepository = cacheConfigRepository;
+        this.configChangeNotifier = configChangeNotifier;
     }
 
     /**
@@ -85,11 +89,14 @@ public class CacheConfigService {
 
     /**
      * 通知配置变更
-     * 实际应用中，这里应该通过消息队列或WebSocket通知客户端
+     * 通过WebSocket通知所有客户端配置变更
+     * 同时通知服务器端的缓存管理器
      */
     private void notifyConfigChange(String cacheName, CacheConfig newConfig) {
-        // 模拟通知逻辑
-        System.out.println("通知应用: 缓存 '" + cacheName + "' 的配置已更新");
-        // 实际实现中，这里可以通过Spring Cloud Bus、WebSocket或其他消息机制发送通知
+        // 通知服务器端缓存管理器
+        configChangeNotifier.notifyConfigChange(newConfig);
+        // 通过WebSocket发送配置变更通知给客户端
+        CacheConfigWebSocketHandler.sendConfigChangeNotification(cacheName, newConfig);
+        System.out.println("已发送配置变更通知: 缓存 '" + cacheName + "'");
     }
 }
