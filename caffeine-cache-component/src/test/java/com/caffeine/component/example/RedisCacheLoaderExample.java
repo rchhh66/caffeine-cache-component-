@@ -1,8 +1,8 @@
 package com.caffeine.component.example;
 
-import com.caffeine.component.CacheConfig;
-import com.caffeine.component.CaffeineCacheManager;
-import com.caffeine.component.loader.RedisCacheLoader;
+import com.caffeine.component.config.CacheConfig;
+import com.caffeine.component.core.CaffeineCacheManager;
+import com.caffeine.component.warmup.loader.RedisCacheLoader;
 import com.github.benmanes.caffeine.cache.Cache;
 import redis.clients.jedis.JedisPoolConfig;
 

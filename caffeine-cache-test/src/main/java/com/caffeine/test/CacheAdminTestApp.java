@@ -1,7 +1,7 @@
 package com.caffeine.test;
 
-import com.caffeine.component.CacheConfig;
-import com.caffeine.component.CaffeineCacheManager;
+import com.caffeine.component.config.CacheConfig;
+import com.caffeine.component.core.CaffeineCacheManager;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;

@@ -1,6 +1,6 @@
 package com.caffeine.component.listener;
 
-import com.caffeine.component.model.CacheConfig;
+import com.caffeine.component.config.CacheConfig;
 
 /**
  * 缓存配置变更监听器接口

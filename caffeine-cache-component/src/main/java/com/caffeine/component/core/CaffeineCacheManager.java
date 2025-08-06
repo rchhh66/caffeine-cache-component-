@@ -139,12 +139,12 @@ public class CaffeineCacheManager implements CacheConfigChangeListener {
      */
     public void onConfigChanged(CacheConfig newConfig) {
         setConfig(newConfig);
-        System.out.println("缓存配置已更新并应用: " + newConfig.getCacheName());
+        System.out.println("缓存配置已更新并应用: " + newConfig.getName());
     }
 
     @Override
     public void onCacheConfigChanged(CacheConfig config) {
-        if (config != null && config.getCacheName().equals(this.config.getCacheName())) {
+        if (config != null && config.getName().equals(this.config.getName())) {
             onConfigChanged(config);
         }
     }
@@ -174,7 +174,7 @@ public class CaffeineCacheManager implements CacheConfigChangeListener {
      */
     private void initCaches() {
         // 初始化默认缓存
-        getCache(config.getCacheName());
+        getCache(config.getName());
     }
 
     /**

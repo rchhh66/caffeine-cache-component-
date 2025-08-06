@@ -7,6 +7,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * 缓存配置类
  */
 public class CacheConfig {
+    // 缓存名称
+    private String name;
+
     // 默认配置
     private static final long DEFAULT_MAXIMUM_SIZE = 10000;
     private static final long DEFAULT_EXPIRE_AFTER_WRITE = 3600;
@@ -67,6 +70,7 @@ public class CacheConfig {
     public void update(CacheConfig newConfig) {
         lock.writeLock().lock();
         try {
+            this.name = newConfig.name;
             this.maximumSize = newConfig.maximumSize;
             this.expireAfterWrite = newConfig.expireAfterWrite;
             this.offHeapCacheEnabled = newConfig.offHeapCacheEnabled;
@@ -75,6 +79,24 @@ public class CacheConfig {
             this.asyncWarmupEnabled = newConfig.asyncWarmupEnabled;
             this.persistencePath = newConfig.persistencePath;
             this.persistenceInterval = newConfig.persistenceInterval;
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    public String getName() {
+        lock.readLock().lock();
+        try {
+            return name;
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    public void setName(String name) {
+        lock.writeLock().lock();
+        try {
+            this.name = name;
         } finally {
             lock.writeLock().unlock();
         }

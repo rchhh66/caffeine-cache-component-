@@ -1,6 +1,8 @@
 package com.caffeine.component;
 
 import com.github.benmanes.caffeine.cache.Cache;
+import com.caffeine.component.config.CacheConfig;
+import com.caffeine.component.core.CaffeineCacheManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

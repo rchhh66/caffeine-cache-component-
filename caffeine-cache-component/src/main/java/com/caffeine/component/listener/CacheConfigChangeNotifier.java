@@ -1,6 +1,6 @@
 package com.caffeine.component.listener;
 
-import com.caffeine.component.model.CacheConfig;
+import com.caffeine.component.config.CacheConfig;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

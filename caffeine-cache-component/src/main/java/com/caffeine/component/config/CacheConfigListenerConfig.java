@@ -36,7 +36,7 @@ public class CacheConfigListenerConfig {
         // 注册每个缓存管理器为配置变更监听器
         for (CaffeineCacheManager cacheManager : cacheManagers.values()) {
             configChangeNotifier.registerListener(cacheManager);
-            System.out.println("已注册缓存管理器: " + cacheManager.getConfig().getCacheName());
+            System.out.println("已注册缓存管理器: " + cacheManager.getConfig().getName());
         }
     }
 }
